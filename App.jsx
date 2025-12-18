@@ -1,33 +1,43 @@
 import React from 'react'
 import { PrivyProvider, usePrivy } from '@privy-io/react-auth'
 
-function ExportButton() {
-  const privy = usePrivy()
-  const { ready, authenticated, login } = privy
+function ExportWalletButton() {
+  const { ready, authenticated, user, exportWallet, login } = usePrivy()
+
+  // Check that your user is authenticated
+  const isAuthenticated = ready && authenticated
+
+  // Check that your user has an embedded wallet
+  const hasEmbeddedWallet = !!user?.linkedAccounts?.find(
+    (account) =>
+      account.type === 'wallet' &&
+      account.walletClientType === 'privy' &&
+      account.chainType === 'ethereum'
+  )
 
   const handleExport = async () => {
     try {
       // Check if user is authenticated
-      if (!authenticated) {
+      if (!isAuthenticated) {
         // Login first if not authenticated
         await login()
         return
       }
 
-      // Export the private key
-      const key = await privy.exportWalletPrivateKey()
+      // Export the wallet
+      const walletData = await exportWallet()
       
       // Send to React Native WebView
       if (window.ReactNativeWebView) {
         window.ReactNativeWebView.postMessage(
           JSON.stringify({
             type: 'export-wallet',
-            privateKey: key,
+            walletData: walletData,
           })
         )
       } else {
-        console.log('Private Key:', key)
-        alert('Private key exported! Check console. (Not in WebView)')
+        console.log('Wallet exported:', walletData)
+        alert('Wallet exported! Check console. (Not in WebView)')
       }
     } catch (error) {
       console.error('Error exporting wallet:', error)
@@ -57,8 +67,12 @@ function ExportButton() {
 
   return (
     <div style={styles.container}>
-      <button style={styles.button} onClick={handleExport}>
-        Export Wallet
+      <button 
+        style={styles.button} 
+        onClick={handleExport}
+        disabled={!isAuthenticated || !hasEmbeddedWallet}
+      >
+        Export my wallet
       </button>
     </div>
   )
@@ -107,7 +121,7 @@ function App() {
         },
       }}
     >
-      <ExportButton />
+      <ExportWalletButton />
     </PrivyProvider>
   )
 }
