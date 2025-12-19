@@ -14,7 +14,10 @@ function ExportWalletButton() {
       account.walletClientType === 'privy' &&
       account.chainType === 'ethereum'
   )
-
+  console.log('hasEmbeddedWallet', hasEmbeddedWallet)
+  console.log('user', JSON.stringify(user, null, 2))
+  console.log('authenticated', authenticated)
+  console.log('ready', ready)
   const handleExport = async () => {
     try {
       // Check if user is authenticated
