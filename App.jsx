@@ -68,14 +68,18 @@ function ExportWalletButton() {
     )
   }
 
+  // Determine button text and disabled state
+  const buttonText = !isAuthenticated ? 'Login' : 'Export my wallet'
+  const isButtonDisabled = isAuthenticated && !hasEmbeddedWallet
+
   return (
     <div style={styles.container}>
       <button 
         style={styles.button} 
         onClick={handleExport}
-        disabled={!isAuthenticated || !hasEmbeddedWallet}
+        disabled={isButtonDisabled}
       >
-        Export my wallet
+        {buttonText}
       </button>
     </div>
   )
