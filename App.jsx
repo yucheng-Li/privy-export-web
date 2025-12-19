@@ -14,10 +14,7 @@ function ExportWalletButton() {
       account.walletClientType === 'privy' &&
       account.chainType === 'ethereum'
   )
-  console.log('hasEmbeddedWallet', hasEmbeddedWallet)
-  console.log('user', JSON.stringify(user, null, 2))
-  console.log('authenticated', authenticated)
-  console.log('ready', ready)
+
   const handleExport = async () => {
     try {
       // Check if user is authenticated
@@ -63,7 +60,12 @@ function ExportWalletButton() {
   if (!ready) {
     return (
       <div style={styles.container}>
-        <div>Loading...</div>
+        <div style={styles.card}>
+          <div style={styles.loadingContainer}>
+            <div style={styles.loadingSpinner}></div>
+            <p style={styles.loadingText}>Loading...</p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -74,13 +76,44 @@ function ExportWalletButton() {
 
   return (
     <div style={styles.container}>
-      <button 
-        style={styles.button} 
-        onClick={handleExport}
-        disabled={isButtonDisabled}
-      >
-        {buttonText}
-      </button>
+      <div style={styles.card}>
+        <div style={styles.section}>
+          <h2 style={styles.sectionTitle}>Export Keys</h2>
+          
+          <div style={styles.content}>
+            {!isAuthenticated ? (
+              <div style={styles.infoContainer}>
+                <p style={styles.infoText}>
+                  Please login to export your wallet keys.
+                </p>
+              </div>
+            ) : !hasEmbeddedWallet ? (
+              <div style={styles.infoContainer}>
+                <p style={styles.infoText}>
+                  No embedded wallet found. Please ensure you have an embedded wallet set up.
+                </p>
+              </div>
+            ) : (
+              <div style={styles.infoContainer}>
+                <p style={styles.infoText}>
+                  Export your wallet keys securely. This will allow you to backup and restore your wallet.
+                </p>
+              </div>
+            )}
+
+            <button 
+              style={{
+                ...styles.button,
+                ...(isButtonDisabled ? styles.buttonDisabled : {}),
+              }}
+              onClick={handleExport}
+              disabled={isButtonDisabled}
+            >
+              {buttonText}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -88,25 +121,106 @@ function ExportWalletButton() {
 const styles = {
   container: {
     display: 'flex',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    height: '100vh',
-    width: '100vw',
+    minHeight: '100vh',
+    width: '100%',        // ❗ 不要用 100vw
     backgroundColor: '#ffffff',
     margin: 0,
     padding: 0,
+    boxSizing: 'border-box',
+  },
+  card: {
+    width: 'calc(100% - 40px)', // 左右 20px
+    margin: '20px',
+    backgroundColor: '#ffffff',
+    borderRadius: '20px',
+    border: '1px solid #f1f5f9',
+    boxShadow: '0px 4px 24px rgba(0, 0, 0, 0.102)',
+    overflow: 'hidden',
+    boxSizing: 'border-box',
+  },
+  section: {
+    paddingTop: '20px',
+    paddingBottom: '10px',
+    paddingLeft: '20px',
+    paddingRight: '20px',
+  },
+  sectionTitle: {
+    fontSize: '18px',
+    fontWeight: 600,
+    lineHeight: '26px',
+    color: '#000000',
+    marginBottom: '3px',
+    margin: 0,
+  },
+  content: {
+    paddingLeft: '1px',
+    paddingRight: '6px',
+    paddingTop: '14px',
+    paddingBottom: '14px',
+  },
+  infoContainer: {
+    marginBottom: '16px',
+  },
+  infoText: {
+    fontSize: '12px',
+    color: '#ACB3BE',
+    marginTop: '4px',
+    margin: 0,
+    lineHeight: '16px',
   },
   button: {
-    padding: '12px 24px',
+    width: '100%',
+    padding: '14px 24px',
     fontSize: '16px',
-    backgroundColor: '#0066ff',
+    fontWeight: 600,
+    backgroundColor: '#000000',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '12px',
     cursor: 'pointer',
     fontFamily: 'system-ui, -apple-system, sans-serif',
+    transition: 'background-color 0.2s ease',
+    marginTop: '8px',
+  },
+  buttonDisabled: {
+    backgroundColor: '#E5E7EB',
+    color: '#9CA3AF',
+    cursor: 'not-allowed',
+  },
+  loadingContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '40px 20px',
+  },
+  loadingSpinner: {
+    width: '40px',
+    height: '40px',
+    border: '3px solid #E5E7EB',
+    borderTop: '3px solid #000000',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+  },
+  loadingText: {
+    marginTop: '12px',
+    fontSize: '14px',
+    color: '#6B7280',
+    margin: 0,
   },
 }
+
+// Add spinner animation
+const styleSheet = document.createElement('style')
+styleSheet.textContent = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`
+document.head.appendChild(styleSheet)
 
 function App() {
   // Log current origin for debugging
